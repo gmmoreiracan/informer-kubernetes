@@ -11,7 +11,7 @@ export  K8S_NAMESPACE='servicenow' \
     DOCKER_PASSWORD='cmVmdGtuOjAxOjE3MzkxNzY1NzY6SU5INDZOVEZhWDJORTRGQVNHcXpYOGRZY0VU' \
     DOCKER_EMAIL='gmmoreira.eng@gmail.com' \
     DOCKER_SERVER='https://bisnages.jfrog.io'
-    CNO_IMAGE_REPO='bisnages.jfrog.io/servicenow-informer/informer:1.0.2'
+    CNO_IMAGE_REPO='bisnages.jfrog.io/servicenow-informer/informer'
     CNO_IMAGE_REPO_TAG='1.0.2'
 
 
