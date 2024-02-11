@@ -1,0 +1,128 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: <NAMESPACE>
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: servicenow
+  namespace: <NAMESPACE>
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: servicenow
+  namespace: <NAMESPACE>
+rules:
+  - apiGroups: ["","apps","core","batch"]
+    resources: ["namespaces","nodes","deployments","statefulsets","daemonsets","replicasets","jobs","cronjobs","pods","pods/log", "endpoints","services"]
+    verbs: ["get", "watch", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: servicenow-<NAMESPACE>
+  namespace: <NAMESPACE>
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: servicenow
+subjects:
+  - kind: ServiceAccount
+    name: servicenow
+    namespace: <NAMESPACE>
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-informer-INSTANCE_NAME
+  namespace: <NAMESPACE>
+  labels:
+    app: k8s_informer-INSTANCE_NAME
+spec:
+  selector:
+    matchLabels:
+      app: k8s_informer-INSTANCE_NAME
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: k8s_informer-INSTANCE_NAME
+    spec:
+      volumes:
+        - name: credentials
+          secret:
+            secretName: k8s-informer-cred-INSTANCE_NAME
+      dnsPolicy: Default
+      serviceAccountName: servicenow
+      securityContext:
+        runAsNonRoot: true
+      imagePullSecrets:
+      - name: k8s-informer-repo-cred
+      containers:
+      - command:
+        - /k8s_informer
+        args: ["--kubeconfig", "in_cluster", "--standalone", "true"]
+        image: &informerVersion docker.io/servicenowdocker/informer:1.0.2
+        name: k8sinformer
+        imagePullPolicy: Always
+        terminationMessagePolicy: FallbackToLogsOnError
+        volumeMounts:
+          - name: credentials
+            readOnly: true
+            mountPath: "/etc/credentials"
+        env:
+        - name: ACCEPT_EULA
+          value: "N"
+        - name: CLUSTER_NAME
+          value: "<CLUSTER_NAME>"
+        - name: RESYNC_MIN
+          value: "0"
+        - name: SEND_INTERVAL_SEC
+          value: "10"
+        - name: MAX_CI_IN_MESSAGE
+          value: "50"
+        - name: REFRESH_TIME_MIN
+          value: "0"
+        - name: FULL_DISCOVERY_MIN
+          value: "1440"
+        - name: READ_COMMAND_SEC
+          value: "60"
+        - name: HEARTBEAT_MIN
+          value: "5"
+        - name: MAX_QUEUE_SIZE_BYTES
+          value: "104755200"
+        - name: MAX_RETRY
+          value: "5"
+        - name: MAX_ECC_PAYLOAD_SIZE_BYTES
+          value: "1048576"
+        - name: PROXY_URL
+          value: ""
+        - name: INSTANCE_URL
+          value: "https://INSTANCE_NAME.service-now.com"
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: CONTINUOUS_DISCOVERY
+          value: "true"
+        - name: ECC_SENDER_INTERVAL_SEC
+          value: "30"
+        - name: VERBOSE_LOGGING
+          value: "false"
+        - name: INFORMER_VERSION
+          value: *informerVersion
+        - name: SKIP_TLS_CERT_VALIDATION
+          value: "false"
+        resources:
+          limits:
+            cpu: 100m
+          requests:
+            cpu: 20m
+            memory: 200Mi
+      terminationGracePeriodSeconds: 10
