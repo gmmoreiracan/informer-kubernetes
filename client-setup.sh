@@ -18,6 +18,9 @@ export  K8S_NAMESPACE='servicenow' \
 #Create Namespace
 kubectl create namespace $K8S_NAMESPACE
 
+#Create Secret for Honeycomb
+kubectl create secret generic honeycomb-api-key --from-literal=api-key=cjjMiLI9S2xDh7YdH4dteC
+
 #Create Secret
 kubectl create secret generic k8s-informer-cred-$SN_INSTANCE --from-literal=.user=$SN_USER --from-literal=.password=$SN_PASS  -n $K8S_NAMESPACE
 
