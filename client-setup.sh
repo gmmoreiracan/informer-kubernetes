@@ -25,4 +25,5 @@ kubectl create secret generic k8s-informer-cred-$SN_INSTANCE --from-literal=.use
 kubectl create secret docker-registry k8s-informer-repo-cred --docker-server $DOCKER_SERVER --docker-username $DOCKER_USERNAME --docker-password $DOCKER_PASSWORD --docker-email $DOCKER_EMAIL -n $K8S_NAMESPACE
 
 #Install Helm Chart
-helm install -n $K8S_NAMESPACE --set memoryLimit=$SN_HELM_MEMORY_LIMIT --set acceptEula=Y --set instance.name=$SN_INSTANCE --set clusterName=$K8S_CLUSTER --set image.repository=$CNO_IMAGE_REPO --set image.tag=$CNO_IMAGE_REPO_TAG k8s-informer $SN_HELM_URL
+# helm install -n $K8S_NAMESPACE --set memoryLimit=$SN_HELM_MEMORY_LIMIT --set acceptEula=Y --set instance.name=$SN_INSTANCE --set clusterName=$K8S_CLUSTER --set image.repository=$CNO_IMAGE_REPO --set image.tag=$CNO_IMAGE_REPO_TAG k8s-informer $SN_HELM_URL
+helm install -n $K8S_NAMESPACE --set memoryLimit=$SN_HELM_MEMORY_LIMIT --set acceptEula=Y --set instance.name=$SN_INSTANCE --set clusterName=$K8S_CLUSTER k8s-informer $SN_HELM_URL
